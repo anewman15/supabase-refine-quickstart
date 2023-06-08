@@ -3,13 +3,15 @@ import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 
 import routerBindings, {
   DocumentTitleHandler,
+  NavigateToResource,
   UnsavedChangesNotifier,
 } from "@refinedev/react-router-v6";
 import { dataProvider, liveProvider } from "@refinedev/supabase";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
 import "./App.css";
 import authProvider from "./authProvider";
 import { supabaseClient } from "./utility";
+import { CountriesList } from "./list";
 
 function App() {
   return (
@@ -19,15 +21,26 @@ function App() {
         <Refine
           dataProvider={dataProvider(supabaseClient)}
           liveProvider={liveProvider(supabaseClient)}
-          authProvider={authProvider}
+          // authProvider={authProvider}
           routerProvider={routerBindings}
+          resources={[
+            {
+              name: "countries",
+              list: "/countries",
+            }
+          ]}
           options={{
             syncWithLocation: true,
             warnWhenUnsavedChanges: true,
           }}
         >
           <Routes>
-            <Route index element={<WelcomePage />} />
+            <Route index
+              element={<NavigateToResource resource="countries" />} 
+            />
+            <Route path="/countries">
+              <Route index element={<CountriesList />} />
+            </Route>
           </Routes>
           <RefineKbar />
           <UnsavedChangesNotifier />
