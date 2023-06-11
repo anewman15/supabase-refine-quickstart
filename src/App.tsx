@@ -11,7 +11,7 @@ import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
 import "./App.css";
 import authProvider from "./authProvider";
 import { supabaseClient } from "./utility";
-import { CountriesList } from "./list";
+import { CountriesList } from "./pages/countries/list";
 
 function App() {
   return (
