@@ -243,22 +243,10 @@ export const meta = {
   <StepHikeCompact.Step step={8}>
     <StepHikeCompact.Details title="View countries pages">
 
-      Disable authentication by removing / commenting out `authProvider` prop of `<Refine />`.
-
       Now you should be able to see the countries pages along the `/countries` routes. You may now edit and add new countries using the Inferencer generated UI.
 
       The Inferencer auto-generated code gives you a good starting point on which to keep building your `list`, `create`, `show` and `edit` pages. They can be obtained by clicking the `Show the auto generated code` buttons in their respective pages.
-      
-      <StepHikeCompact.Code>
-
-      ```tsx App.tsx
-      <Refine
-        dataProvider={dataProvider(supabaseClient)}
-        liveProvider={liveProvider(supabaseClient)}
-        // authProvider={authProvider}
-      />
-      ```
-    </StepHikeCompact.Code>    
+         
     </StepHikeCompact.Details>
   </StepHikeCompact.Step>
 </StepHikeCompact>
