@@ -76,23 +76,6 @@ export const meta = {
   </StepHikeCompact.Step>
 
   <StepHikeCompact.Step step={4}>
-    <StepHikeCompact.Details title="Configure Environmental Variables">
-
-    In your `.env` file, add the Project URL as `SUPABASE_URL` and API `anon` Key as `SUPABASE_KEY`.
-
-    </StepHikeCompact.Details>
-    <StepHikeCompact.Code>
-
-      ```bash Terminal
-          SUPABASE_URL=YOUR_SUPABASE_URL
-          SUPABASE_KEY=SUPABASE_KEY
-      ```
-
-    </StepHikeCompact.Code>
-
-  </StepHikeCompact.Step>
-
-  <StepHikeCompact.Step step={5}>
     <StepHikeCompact.Details title="Start the app">
 
     Start the app, go to http://localhost:5173 in a browser, and you should be greeted with the **refine** Welcome page.
@@ -113,10 +96,10 @@ export const meta = {
 </StepHikeCompact>
 
 
-  <StepHikeCompact.Step step={6}>
+  <StepHikeCompact.Step step={5}>
     <StepHikeCompact.Details title="Update `supabaseClient`">
 
-      You now have to update the `supabaseClient` with your stored **Supabase** credentials in `.env` file. The `supabaseClient` is used in auth provider and data provider methods that allow the **refine** app to connect to your **Supabase** backend.
+      You now have to update the `supabaseClient` with the `SUPABASE_URL` and `SUPABASE_KEY` of your **Supabase** API. The `supabaseClient` is used in auth provider and data provider methods that allow the **refine** app to connect to your **Supabase** backend.
 
     </StepHikeCompact.Details>
 
@@ -125,8 +108,8 @@ export const meta = {
       ```ts src/utility/supabaseClient.ts
       import { createClient } from "@refinedev/supabase";
 
-      const SUPABASE_URL = process.env.SUPABASE_URL;
-      const SUPABASE_KEY = process.env.SUPABASE_KEY
+      const SUPABASE_URL = YOUR_SUPABASE_URL;
+      const SUPABASE_KEY = YOUR_SUPABASE_KEY
 
       export const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY, {
         db: {
@@ -141,18 +124,47 @@ export const meta = {
     </StepHikeCompact.Code>    
   </StepHikeCompact.Step>
   
-  <StepHikeCompact.Step step={7}>
-    <StepHikeCompact.Details title="Add resources">
+  <StepHikeCompact.Step step={6}>
+    <StepHikeCompact.Details title="Add countries resource and pages">
 
-      You have to then configure the resources and their routes in the `App.tsx` file. In **refine** resources are passed as prop to `<Refine />` and routes are added as children.
+      You have to then configure resources and define pages for `countries` resource.
+      
+      Use the following command to automatically add resources and generate code for pages for `countries` using **refine** **Inferencer**.
 
-      We have a `countries` resource so you need to define a `list` action for it along with a corresponding route path. You should also disable / remove the `authProvider` prop of `<Refine />` because this app doesn't require authentication.
+      This defines pages for `list`, `create`, `show` and `edit` actions inside the `src/pages/countries/` directory with `<HeadlessInferencer />` component.
+      
+      <Admonition type="note">
+        The `<HeadlessInferencer />` is an **refine** **Inferencer** component that automatically generates necessary code for the `list`, `create`, `show` and `edit` pages.
 
+        More on [how the **Inferencer** works is available in the docs here](https://refine.dev/docs/packages/documentation/inferencer/).
+      </Admonition>
+
+      <Admonition type="important">
+        The `<HeadlessInferencer />` component depends on `@refinedev/react-table` and `@refinedev/react-hook-form` packages. In order to avoid errors, you should install them as dependencies with `npm install @refinedev/react-table @refinedev/react-hook-form`.
+      </Admonition>
     </StepHikeCompact.Details>
 
     <StepHikeCompact.Code>
 
-      ```ts src/App.tsx
+      ```bash Terminal
+      npm run refine create-resource countries
+      ```
+    </StepHikeCompact.Code>    
+  </StepHikeCompact.Step>
+
+  <StepHikeCompact.Step step={7}>
+    <StepHikeCompact.Details title="Add routes for countries pages">
+
+      Add routes for the `list`, `create`, `show`, and `edit` pages.
+
+      <Admonition type="important">
+        You should remove the `index` route for the Welcome page presented with the `<Welcome />` component.
+      </Admonition>
+
+    </StepHikeCompact.Details>
+
+    <StepHikeCompact.Code>
+      ```tsx src/App.tsx
       import { GitHubBanner, Refine, WelcomePage } from "@refinedev/core";
       import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 
@@ -162,11 +174,11 @@ export const meta = {
         UnsavedChangesNotifier,
       } from "@refinedev/react-router-v6";
       import { dataProvider, liveProvider } from "@refinedev/supabase";
-      import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
+      import { BrowserRouter, Route, Routes } from "react-router-dom";
       import "./App.css";
       import authProvider from "./authProvider";
       import { supabaseClient } from "./utility";
-      import { CountriesList } from "./list";
+      import { CountriesCreate, CountriesEdit, CountriesList, CountriesShow } from "./pages/countries";
 
       function App() {
         return (
@@ -176,26 +188,43 @@ export const meta = {
               <Refine
                 dataProvider={dataProvider(supabaseClient)}
                 liveProvider={liveProvider(supabaseClient)}
-                // authProvider={authProvider}
+                authProvider={authProvider}
                 routerProvider={routerBindings}
-                resources={[
-                  {
-                    name: "countries",
-                    list: "/countries",
-                  }
-                ]}
                 options={{
                   syncWithLocation: true,
                   warnWhenUnsavedChanges: true,
                 }}
-              >
+                resources={[{
+                  /** 
+                  *
+                  * Resource is default with default paths, you need to add the components to the paths accordingly.
+                  * You can also add custom paths to the resource.
+                  * 
+                  * Use `<CountriesList/>` component at `/countries` path.
+                  * Use `<CountriesCreate/>` component at `/countries/create` path.
+                  * Use `<CountriesEdit/>` component at `/countries/edit/:id` path.
+                  * Use `<CountriesShow/>` component at `/countries/show/:id` path.
+                  *
+                  **/
+                  name: "countries",
+
+                  list: "/countries",
+                  create: "/countries/create",
+                  edit: "/countries/edit/:id",
+                  show: "/countries/show/:id"
+                }]}>
                 <Routes>
+                  // highlight-start
                   <Route index
                     element={<NavigateToResource resource="countries" />} 
                   />
                   <Route path="/countries">
                     <Route index element={<CountriesList />} />
+                    <Route path="create" element={<CountriesCreate />} />
+                    <Route path="edit/:id" element={<CountriesEdit />} />
+                    <Route path="show/:id" element={<CountriesShow />} />
                   </Route>
+                  // highlight-end
                 </Routes>
                 <RefineKbar />
                 <UnsavedChangesNotifier />
@@ -208,47 +237,29 @@ export const meta = {
 
       export default App;
       ```
-
-    </StepHikeCompact.Code>    
-  </StepHikeCompact.Step>
-
-  <StepHikeCompact.Step step={8}>
-    <StepHikeCompact.Details title="Add countries `list` page">
-
-      Create the page for `list` view to fetch and display `countries` data.
-      
-      In these couple of lines, we are using the **Inferencer** to automatically generate code for the `list` page. The `<HeadlessInferencer />` component generates code for the page that uses `useTable()` hook to fetch and display `countries` data from **Supabase** in a table.
-      
-      You need to install `@refinedev/react-table`and `@refinedev/react-hook-form` packages. So run:
-
-      ```bash Terminal
-      npm install @refinedev/react-hook-form @refinedev/react-table
-      ```
-
-      More on [how the **Inferencer** works is available in the docs here](https://refine.dev/docs/packages/documentation/inferencer/).
-
-    </StepHikeCompact.Details>
-
-    <StepHikeCompact.Code>
-
-      ```ts src/pages/countries/list.tsx
-      import { HeadlessInferencer } from "@refinedev/inferencer/headless";
-
-      export const CountriesList = () => <HeadlessInferencer />;
-      ```
-
     </StepHikeCompact.Code>    
   </StepHikeCompact.Step>
   
-  <StepHikeCompact.Step step={9}>
-    <StepHikeCompact.Details title="View countries page">
+  <StepHikeCompact.Step step={8}>
+    <StepHikeCompact.Details title="View countries pages">
 
-      Now you should be able to see the countries `list` page on the `/countries` route.
+      Disable authentication by removing / commenting out `authProvider` prop of `<Refine />`.
 
-      The Inferencer generated code gives you a good starting point on which to keep building your `list` page. It can be obtained by clicking the `Show the auto generated code` button.
+      Now you should be able to see the countries pages along the `/countries` routes. You may now edit and add new countries using the Inferencer generated UI.
+
+      The Inferencer auto-generated code gives you a good starting point on which to keep building your `list`, `create`, `show` and `edit` pages. They can be obtained by clicking the `Show the auto generated code` buttons in their respective pages.
       
-      ![refine-countries-list](https://imgbox.com/fRpQlmbS)
+      <StepHikeCompact.Code>
 
+      ```tsx App.tsx
+      <Refine
+        dataProvider={dataProvider(supabaseClient)}
+        liveProvider={liveProvider(supabaseClient)}
+        // authProvider={authProvider}
+      />
+      ```
+    </StepHikeCompact.Code>    
+    </StepHikeCompact.Details>
   </StepHikeCompact.Step>
 </StepHikeCompact>
 
