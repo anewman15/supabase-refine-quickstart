@@ -21,7 +21,7 @@ function App() {
         <Refine
           dataProvider={dataProvider(supabaseClient)}
           liveProvider={liveProvider(supabaseClient)}
-          // authProvider={authProvider}
+          authProvider={authProvider}
           routerProvider={routerBindings}
           options={{
             syncWithLocation: true,
